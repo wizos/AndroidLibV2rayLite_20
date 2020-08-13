@@ -1,6 +1,6 @@
 # AndroidLibV2rayLite
 
-将 v2ray-core 编译为 aar 库，提供给 Android 客户端使用，本库开发的 [V2free APP ](https://github.com/bannedbook/v2ray.vpn/) 就是使用这个aar库。
+将 v2ray-core 编译为 aar 库，提供给 Android 客户端使用，本库开发的 [V2free APP ](https://github.com/bannedbook/ssvpn/) 就是使用这个aar库。
 
 ## 编译环境和步骤
 
