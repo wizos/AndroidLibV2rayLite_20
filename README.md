@@ -16,7 +16,7 @@ apt install git
 cd /root/
 git clone https://github.com/bannedbook/AndroidLibV2rayLite.git
 cd /root/AndroidLibV2rayLite
-cp -r AndroidLibV2rayLite go/src
+cp -r AndroidLibV2rayLite /root/go/src
 cd /root/go/src/AndroidLibV2rayLite
 chmod +x build_libv2ray_aar.sh
 ./build_libv2ray_aar.sh sdk data dep

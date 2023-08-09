@@ -8,25 +8,25 @@ import (
 	"strings"
 	"sync"
 
-	"AndroidLibV2rayLite/CoreI"
-	"AndroidLibV2rayLite/Process/Escort"
-	"AndroidLibV2rayLite/VPN"
-	"AndroidLibV2rayLite/shippedBinarys"
+	"AndroidLibXrayLite/CoreI"
+	"AndroidLibXrayLite/Process/Escort"
+	"AndroidLibXrayLite/VPN"
+	"AndroidLibXrayLite/shippedBinarys"
 	mobasset "golang.org/x/mobile/asset"
 
-	v2core "v2ray.com/core"
-	v2filesystem "v2ray.com/core/common/platform/filesystem"
-	v2stats "v2ray.com/core/features/stats"
-	v2serial "v2ray.com/core/infra/conf/serial"
-	_ "v2ray.com/core/main/distro/all"
-	v2internet "v2ray.com/core/transport/internet"
+	v2core "github.com/xtls/xray-core/core"
+	v2filesystem "github.com/xtls/xray-core/common/platform/filesystem"
+	v2stats "github.com/xtls/xray-core/features/stats"
+	v2serial "github.com/xtls/xray-core/infra/conf/serial"
+	_ "github.com/xtls/xray-core/main/distro/all"
+	v2internet "github.com/xtls/xray-core/transport/internet"
 
-	v2applog "v2ray.com/core/app/log"
-	v2commlog "v2ray.com/core/common/log"
+	v2applog "github.com/xtls/xray-core/app/log"
+	v2commlog "github.com/xtls/xray-core/common/log"
 )
 
 const (
-	v2Assert    = "v2ray.location.asset"
+	v2Assert    = "xray.location.asset"
 	assetperfix = "/dev/libv2rayfs0/asset"
 )
 
@@ -48,12 +48,13 @@ type V2RayPoint struct {
 	ConfigureFileContent string
 	EnableLocalDNS       bool
 	ForwardIpv6          bool
+	VpnMode            bool
 }
 
 /*V2RayVPNServiceSupportsSet To support Android VPN mode*/
 type V2RayVPNServiceSupportsSet interface {
 	Setup(Conf string) int
-	Prepare() int
+	Prepare() string
 	Shutdown() int
 	Protect(int) int
 	OnEmitStatus(int, string) int
@@ -132,24 +133,25 @@ func (v *V2RayPoint) shutdownInit() {
 }
 
 func (v *V2RayPoint) pointloop() error {
-	if err := v.runTun2socks(); err != nil {
-		log.Println(err)
-		return err
+	if v.VpnMode {
+		if err := v.runTun2socks(); err != nil {
+			log.Println(err)
+			return err
+		}
+
+		log.Printf("EnableLocalDNS: %v\nForwardIpv6: %v\nDomainName: %s",
+			v.EnableLocalDNS,
+			v.ForwardIpv6,
+			v.DomainName)
 	}
-
-	log.Printf("EnableLocalDNS: %v\nForwardIpv6: %v\nDomainName: %s",
-		v.EnableLocalDNS,
-		v.ForwardIpv6,
-		v.DomainName)
-
-	log.Println("loading v2ray config")
+	log.Println("loading core config")
 	config, err := v2serial.LoadJSONConfig(strings.NewReader(v.ConfigureFileContent))
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	log.Println("new v2ray core")
+	log.Println("new core")
 	inst, err := v2core.New(config)
 	if err != nil {
 		log.Println(err)
@@ -158,7 +160,7 @@ func (v *V2RayPoint) pointloop() error {
 	v.status.Vpoint = inst
 	v.statsManager = inst.GetFeature(v2stats.ManagerType()).(v2stats.Manager)
 
-	log.Println("start v2ray core")
+	log.Println("start core")
 	v.status.IsRunning = true
 	if err := v.status.Vpoint.Start(); err != nil {
 		v.status.IsRunning = false
@@ -233,7 +235,7 @@ func (v V2RayPoint) runTun2socks() error {
 
 	v.escorter.EscortingUp()
 	go v.escorter.EscortRun(
-		v.status.GetApp("lib/libtun2socks.so"),
+		v.SupportSet.Prepare()+"/libtun2socks.so",
 		v.status.GetTun2socksArgs(v.EnableLocalDNS, v.ForwardIpv6), "",
 		v.SupportSet.SendFd)
 
@@ -251,5 +253,5 @@ func CheckVersion() int {
 This func will return libv2ray binding version and V2Ray version used.
 */
 func CheckVersionX() string {
-	return fmt.Sprintf("Libv2rayLite V%d, Core V%s", CheckVersion(), v2core.Version())
+	return fmt.Sprintf("LibXrayLite V%d, Core V%s", CheckVersion(), v2core.Version())
 }
