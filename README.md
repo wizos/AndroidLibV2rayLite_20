@@ -15,7 +15,7 @@ apt update
 apt install git
 cd /root/
 git clone https://github.com/bannedbook/AndroidLibV2rayLite.git
-cd /root/AndroidLibXrayLite
+cd /root/AndroidLibV2rayLite
 
 #for xray core
 mv AndroidLibXrayLite /root/go/src
