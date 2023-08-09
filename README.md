@@ -18,11 +18,11 @@ git clone https://github.com/bannedbook/AndroidLibV2rayLite.git
 cd /root/AndroidLibXrayLite
 
 #for xray core
-cp -r AndroidLibXrayLite /root/go/src
+mv AndroidLibXrayLite /root/go/src
 cd /root/go/src/AndroidLibXrayLite
 
 #or for v2fly core
-cp -r AndroidLibV2rayLite /root/go/src
+mv AndroidLibV2rayLite /root/go/src
 cd /root/go/src/AndroidLibV2rayLite
 
 chmod +x build_libv2ray_aar.sh
